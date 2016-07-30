@@ -214,7 +214,7 @@ $url=$GATEWAY['systemurl'];
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
 	<title>支付宝支付接口返回页面</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="./bootstrap.min.css" rel="stylesheet">
+	<link href="./bootstrap.min.css" rel="stylesheet" type="text/css">
 	<link href="./style.css" rel="stylesheet" type="text/css">
 </head> 
 <body>
@@ -231,25 +231,25 @@ $url=$GATEWAY['systemurl'];
 							<div class="sa-placeholder"></div>
 							<div class="sa-fix"></div>
 					    </div>
-<?} else {?>
+<?php } else {?>
 						<div class="sa-icon sa-error animateErrorIcon">
 							<span class="sa-x-mark animateXMark">
 								<span class="sa-line sa-left"></span>
 								<span class="sa-line sa-right"></span>
 							</span>
 						</div>
-<?}?>
+<?php }?>
 					</div>
 					<div class="col-sm-9">
 <?php if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {?>
 						<h4>您的支付已成功</h4>
 						<p>如果10分钟内还未处理,请提交服务单给我们财务人员!</p>
 						<p>按 <a href="<?php echo $url ?>/clientarea.php" target="">这里</a> 返回客户系统</p>
-<?} else {?>
+<?php } else {?>
 						<h4>Oops！！！</h4>
 						<p>貌似是什么地方出了一些问题！</p>
 						<p>按 <a href="<?php echo $url ?>/clientarea.php" target="">这里</a> 返回客户系统</p>
-<?}?>
+<?php }?>
 					</div>
 				</div>
 			</div>
