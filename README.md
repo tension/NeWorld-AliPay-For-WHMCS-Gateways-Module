@@ -1,9 +1,13 @@
 # NeWorld-AliPay-Modules
 NeWorld 出品，支付宝插件
 
+<<<<<<< HEAD
 请将文件内容上传至 whmcs目录/gateways/ 下，并设置 755 权限！
 
 后台开启支付宝插件、填写对应参数即可使用。
+=======
+请设置 755 权限
+>>>>>>> origin/master
 
 支付成功状态
 
