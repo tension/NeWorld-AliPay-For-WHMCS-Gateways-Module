@@ -4,7 +4,7 @@
 //$seller_email    = "";        //卖家支付宝帐户
 function alipay_config() {
     $configarray = array(
-     "FriendlyName" => array("Type" => "System", "Value"=>"Alipay"),
+     "FriendlyName" => array("Type" => "System", "Value"=>"支付宝（NeWorld）"),
      "seller_email" => array("FriendlyName" => "卖家支付宝帐户", "Type" => "text", "Size" => "32", ),
      "partnerID" => array("FriendlyName" => "合作伙伴ID", "Type" => "text", "Size" => "32", ),
      "security_code" => array("FriendlyName" => "安全检验码", "Type" => "text", "Size" => "32", ),
