@@ -38,25 +38,30 @@ function alipay_link($params) {
 	$return_url			= $systemurl."/modules/gateways/alipay/return.php";
 	$notify_url			= $systemurl."/modules/gateways/alipay/notify.php";
 	$parameter = array(
-	"service"         => "create_direct_pay_by_user",  								//交易类型
-	"partner"         => $gatewayPID,          										//合作商户号
-	"return_url"      => $return_url,         										//同步返回
-	"notify_url"      => $notify_url,       										//异步返回
-	"_input_charset"  => $_input_charset,   										//字符集，默认为GBK
-	"subject"         => "$companyname 订单 $invoiceid",        						//商品名称，必填
-	"body"            => $description,        										//商品描述，必填
-	"out_trade_no"    => $invoiceid,      											//商品外部交易号，必填（保证唯一性）
-	"total_fee"       => $amount,            										//商品单价，必填（价格不能为0）
-	"payment_type"    => "1",               										//默认为1,不需要修改
-	"show_url"        => $systemurl,         										//商品相关网站
-	"seller_email"    => $gatewaySELLER_EMAIL      									//卖家邮箱，必填
-);
+		"service"         => "create_direct_pay_by_user",  					//交易类型
+		"partner"         => $gatewayPID,          							//合作商户号
+		"return_url"      => $return_url,         							//同步返回
+		"notify_url"      => $notify_url,       							//异步返回
+		"_input_charset"  => $_input_charset,   							//字符集，默认为GBK
+		"subject"         => "$companyname 账单 #$invoiceid",        		//商品名称，必填
+		"body"            => $description,        							//商品描述，必填
+		"out_trade_no"    => $invoiceid,      								//商品外部交易号，必填（保证唯一性）
+		"total_fee"       => $amount,            							//商品单价，必填（价格不能为0）
+		"payment_type"    => "1",               							//默认为1,不需要修改
+		"show_url"        => $systemurl,         							//商品相关网站
+		"seller_email"    => $gatewaySELLER_EMAIL      						//卖家邮箱，必填
+	);
 
 	$alipay = new alipay_service($parameter,$gatewaySECURITY_CODE,$sign_type);
 	$link=$alipay->create_url();
 	$img=$systemurl.'/modules/gateways/alipay/pay-with-alipay.png'; //这个图片要先存放好.
 	$code='<a href="'.$link.'" target="_blank"><img style="width: 225px" src="'.$img.'" alt="点击使用支付宝支付"></a>';
-	return $code;
+	
+	if (stristr($_SERVER['PHP_SELF'], 'viewinvoice')) {
+		return $code;
+	} else {
+		return '<img style="width: 200px" src="'.$systemurl.'/modules/gateways/alipay/alipay.png" alt="支付宝支付" />';
+	}
 }
 
 
