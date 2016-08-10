@@ -7,8 +7,8 @@ NeWorld 出品，支付宝插件
 
 支付成功状态
 
-![2016-07-29_屏幕快照 2016-07-29 22.50.10.jpg](https://dn-neworld.qbox.me/ci4ul.jpg)
+![支付成功状态](https://dn-neworld.qbox.me/qqddc.jpg)
 
-其他状态
+支付失败状态
 
-![2016-07-29_屏幕快照 2016-07-29 22.50.17.jpg](https://dn-neworld.qbox.me/jqomt.jpg)
+![支付失败状态](https://dn-neworld.qbox.me/qw80m.jpg)
