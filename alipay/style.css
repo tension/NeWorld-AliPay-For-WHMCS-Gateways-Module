@@ -1,19 +1,61 @@
 body {
 	padding-top: 60px;
 	padding-bottom: 40px;
-}
-h4 {
-	margin-top: 30px;
-	font-weight: bold;
-}
-p {
-	color: #888;
-	margin-bottom: 0;
+	font-family: 'HanHei SC', 'PingFang SC', 'Helvetica Neue', 'Helvetica', 'STHeitiSC-Light', 'Arial', sans-serif;
 }
 .well {
-	padding: 15px 25px;
+	padding: 0;
 	box-shadow: none;
+	border-color: #E4E4E4;
+	background-color: #FFF;
 }
+.header {
+	padding: 30px 50px;
+}
+.logo {
+	font-size: 28px;
+	margin: 0;
+	line-height: 30px;
+	font-weight: 300;
+	font-family: Raleway, sans-serif;
+}
+.content {
+	padding: 30px;
+	border-top: 1px solid #E3E3E3;
+	border-bottom: 1px solid #E3E3E3;
+	background-color: #F8F9FB;
+}
+.content h2 {
+	font-weight: 300;
+}
+.footer {
+	padding: 30px 50px;
+}
+.footer p {
+	color: #222;
+	font-size: 16px;
+	line-height: 26px;
+	font-weight: 300;
+}
+.footer p span {
+	color: #777;
+}
+
+.btn {
+	color: #444;
+	font-size: 16px;
+	font-weight: 300;
+	margin-top: 30px;
+	border-radius: 3px;
+	border-color: #E2E7EB;
+	background-color: #E2E7EB;
+}
+.btn:hover {
+	color: #777;
+	border-color: #E2E7EB;
+	background-color: #E2E7EB;
+}
+
 .sa-icon.sa-success {
     border-color: #A5DC86;
 }

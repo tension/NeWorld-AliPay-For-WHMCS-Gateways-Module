@@ -175,9 +175,9 @@ if (!$GATEWAY["type"]) die("Module Not Activated"); # Checks gateway module is a
 $_input_charset  = "utf-8";   //字符编码格式 目前支持 GBK 或 utf-8
 $sign_type       = "MD5";     //加密方式 系统默认(不要修改)
 $transport       = "https";   //访问模式,你可以根据自己的服务器是否支持ssl访问而选择http以及https访问模式(系统默认,不要修改)
-$gatewayPID = $GATEWAY['partnerID'];
-$gatewaySELLER_EMAIL = $GATEWAY['seller_email'];
-$gatewaySECURITY_CODE = $GATEWAY['security_code'];
+$gatewayPID 			= $GATEWAY['partnerID'];
+$gatewaySELLER_EMAIL 	= $GATEWAY['seller_email'];
+$gatewaySECURITY_CODE 	= $GATEWAY['security_code'];
 $alipay = new alipay_notify($gatewayPID,$gatewaySECURITY_CODE,$sign_type,$_input_charset,$transport);
 $verify_result = $alipay->return_verify();
 if(!$verify_result) { 
@@ -206,7 +206,9 @@ if(!$verify_result) {
 	}
 	
 }
-$url=$GATEWAY['systemurl'];
+$url			= $GATEWAY['systemurl'];
+$companyname 	= $GATEWAY['companyname'];
+$currency		= $GATEWAY['currency'];
 ?>
 <!DOCTYPE html> 
 <html> 
@@ -220,37 +222,49 @@ $url=$GATEWAY['systemurl'];
 <body>
 <div class="container">
 	<div class="row">
-		<div class="col-sm-6 col-sm-offset-3">
+		<div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 			<div class="well">
-				<div class="row">
-					<div class="col-sm-3">
-<?php if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {?>
-						<div class="sa-icon sa-success animate">
-							<span class="sa-line sa-tip animateSuccessTip"></span>
-							<span class="sa-line sa-long animateSuccessLong"></span>
-							<div class="sa-placeholder"></div>
-							<div class="sa-fix"></div>
-					    </div>
-<?php } else {?>
-						<div class="sa-icon sa-error animateErrorIcon">
-							<span class="sa-x-mark animateXMark">
-								<span class="sa-line sa-left"></span>
-								<span class="sa-line sa-right"></span>
-							</span>
+				<div class="header">
+					<h1 class="logo"><?php echo $companyname?></h1>
+				</div>
+				<div class="content">
+					<div class="row">
+						<div class="col-sm-12">
+	<?php if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {?>
+							<div class="sa-icon sa-success animate">
+								<span class="sa-line sa-tip animateSuccessTip"></span>
+								<span class="sa-line sa-long animateSuccessLong"></span>
+								<div class="sa-placeholder"></div>
+								<div class="sa-fix"></div>
+						    </div>
+	<?php } else {?>
+							<div class="sa-icon sa-error animateErrorIcon">
+								<span class="sa-x-mark animateXMark">
+									<span class="sa-line sa-left"></span>
+									<span class="sa-line sa-right"></span>
+								</span>
+							</div>
+	<?php }?>
 						</div>
-<?php }?>
+						<div class="col-sm-12 text-center">
+	<?php if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {?>
+							<h2>您已成功支付 <?php echo $total_fee; ?> CNY </h2>
+	<?php } else {?>
+							<h2>Oops！！！</h2>
+	<?php }?>
+						</div>
 					</div>
-					<div class="col-sm-9">
-<?php if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {?>
-						<h4>您的支付已成功</h4>
-						<p>如果10分钟内还未处理,请提交服务单给我们财务人员!</p>
-						<p>按 <a href="<?php echo $url ?>/clientarea.php" target="">这里</a> 返回客户系统</p>
-<?php } else {?>
-						<h4>Oops！！！</h4>
-						<p>貌似是什么地方出了一些问题！</p>
-						<p>按 <a href="<?php echo $url ?>/clientarea.php" target="">这里</a> 返回客户系统</p>
-<?php }?>
-					</div>
+				</div>
+				<div class="footer">
+	<?php if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {?>
+					<p>支付账单：<span><?php echo $subject ?></span></p>
+					<p>支付时间：<span><?php echo $notify_time ?></span></p>
+					<p>交易编号：<span><?php echo $transid ?></span></p>
+					<p>我们会将确认资料发送至您的信箱。</p>
+	<?php } else {?>
+					<p>貌似是什么地方出了一些问题！</p>
+	<?php }?>
+					<a href="<?php echo $url ?>/clientarea.php" class="btn btn-lg btn-success btn-block">返回用户中心</a>
 				</div>
 			</div>
 		</div>
