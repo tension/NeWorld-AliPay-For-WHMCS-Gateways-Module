@@ -172,6 +172,11 @@ function  log_result($word) {
 }
 $gatewaymodule = "alipay"; # Enter your gateway module name here replacing template
 $GATEWAY = getGatewayVariables($gatewaymodule);
+
+$url			= $GATEWAY['systemurl'];
+$companyname 	= $GATEWAY['companyname'];
+$currency		= $GATEWAY['currency'];
+
 if (!$GATEWAY["type"]) die("Module Not Activated"); # Checks gateway module is active before accepting callback
 
 $_input_charset  = "utf-8";   //字符编码格式 目前支持 GBK 或 utf-8
@@ -192,6 +197,7 @@ $invoiceid = $_POST['out_trade_no']; //获取支付宝传递过来的订单号
 $transid = $_POST['trade_no'];       //获取支付宝传递过来的交易号
 $amount = $_POST['total_fee'];       //获取支付宝传递过来的总价格
 $fee = 0;
+
 if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {
 	$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]); # Checks invoice ID is a valid invoice number or ends processing
 	//checkCbTransID($transid); # Checks transaction number isn't already in the database and ends processing if it does
@@ -204,6 +210,7 @@ if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {
 		addInvoicePayment($invoiceid,$transid,$amount,$fee,$gatewaymodule);
 		logTransaction($GATEWAY["name"],$_GET,"Successful");
 	}
+	//echo "<script>window.parent.location.href='$url/viewinvoice.php?id=$invoiceid';</script>";
 	echo "success";
 }
 

@@ -170,6 +170,11 @@ function  log_result($word) {
 
 $gatewaymodule = "alipay"; # Enter your gateway module name here replacing template
 $GATEWAY = getGatewayVariables($gatewaymodule);
+
+$url			= $GATEWAY['systemurl'];
+$companyname 	= $GATEWAY['companyname'];
+$currency		= $GATEWAY['currency'];
+
 if (!$GATEWAY["type"]) die("Module Not Activated"); # Checks gateway module is active before accepting callback
 
 $_input_charset  = "utf-8";   //字符编码格式 目前支持 GBK 或 utf-8
@@ -203,12 +208,10 @@ if(!$verify_result) {
 			addInvoicePayment($invoiceid,$transid,$amount,$fee,$gatewaymodule);
 			logTransaction($GATEWAY["name"],$_GET,"Successful");
 		}
+		//echo "<script>window.parent.location.href='$url/viewinvoice.php?id=$invoiceid';</script>";
 	}
 	
 }
-$url			= $GATEWAY['systemurl'];
-$companyname 	= $GATEWAY['companyname'];
-$currency		= $GATEWAY['currency'];
 ?>
 <!DOCTYPE html> 
 <html> 

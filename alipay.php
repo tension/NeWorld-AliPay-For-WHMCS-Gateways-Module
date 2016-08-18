@@ -37,7 +37,22 @@ function alipay_link($params) {
 	$currency 			= $params['currency'];
 	$return_url			= $systemurl."/modules/gateways/alipay/return.php";
 	$notify_url			= $systemurl."/modules/gateways/alipay/notify.php";
-	$parameter = array(
+	$qcode = array(
+		"service"         => "create_direct_pay_by_user",  					//交易类型
+		"partner"         => $gatewayPID,          							//合作商户号
+		"return_url"      => $return_url,         							//同步返回
+		"notify_url"      => $notify_url,       							//异步返回
+		"_input_charset"  => $_input_charset,   							//字符集，默认为GBK
+		"subject"         => "$companyname 账单 #$invoiceid",        		//商品名称，必填
+		"body"            => $description,        							//商品描述，必填
+		"out_trade_no"    => $invoiceid,      								//商品外部交易号，必填（保证唯一性）
+		"total_fee"       => $amount,            							//商品单价，必填（价格不能为0）
+		"payment_type"    => "1",               							//默认为1,不需要修改
+		"qr_pay_mode"	  => "1",											//二维码模式
+		"show_url"        => $systemurl,         							//商品相关网站
+		"seller_email"    => $gatewaySELLER_EMAIL      						//卖家邮箱，必填
+	);
+	$webpay = array(
 		"service"         => "create_direct_pay_by_user",  					//交易类型
 		"partner"         => $gatewayPID,          							//合作商户号
 		"return_url"      => $return_url,         							//同步返回
@@ -52,10 +67,22 @@ function alipay_link($params) {
 		"seller_email"    => $gatewaySELLER_EMAIL      						//卖家邮箱，必填
 	);
 
-	$alipay = new alipay_service($parameter,$gatewaySECURITY_CODE,$sign_type);
-	$link=$alipay->create_url();
+	$qcodepay = new alipay_service($qcode,$gatewaySECURITY_CODE,$sign_type);
+	$webpay = new alipay_service($webpay,$gatewaySECURITY_CODE,$sign_type);
+	$qcodelink=$qcodepay->create_url();
+	$webpaylink=$webpay->create_url();
 	$img=$systemurl.'/modules/gateways/alipay/pay-with-alipay.png'; //这个图片要先存放好.
-	$code='<a href="'.$link.'" target="_blank"><img style="width: 225px" src="'.$img.'" alt="点击使用支付宝支付"></a>';
+	$codeinput='<a href="'.$webpaylink.'" target="_blank"><img style="width: 225px" src="'.$img.'" alt="点击使用支付宝支付"></a>';
+	$code='
+<script>
+function refreshPage() { 
+	window.location.reload(); 
+} 
+window.setTimeout("refreshPage()",10000);
+</script>
+<iframe src="'.$qcodelink.'" width="300" height="290" style="border: none;transform: scale(.76);margin: -30px 0 -30px -35px;"></iframe>';
+	
+	$code= $code . $codeinput;
 	
 	if (stristr($_SERVER['PHP_SELF'], 'viewinvoice')) {
 		return $code;
