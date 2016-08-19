@@ -74,7 +74,7 @@ function alipay_link($params) {
 	$qcodelink=$qcodepay->create_url();
 	$webpaylink=$webpay->create_url();
 	
-	$code = '<div class="alipay"><iframe id="alipayimg" src="'.$qcodelink.'" width="300" height="290" style="border: none;transform: scale(.76);margin: -30px 0 -30px -35px;"></iframe>';
+	$code = '<div class="alipay"><iframe id="alipayimg" src="'.$qcodelink.'" width="300" height="290" style="border: none;transform: scale(.76);margin: -30px 0 -30px -35px;" scrolling="no"></iframe>';
 	$code_ajax = '<a href="'.$webpaylink.'" target="_blank" id="alipayDiv" class="btn btn-success btn-sm btn-block">前往支付宝进行支付</a></div>';
 	$code_ajax = $code_ajax.'
 <!--微信支付ajax跳转-->
