@@ -74,13 +74,13 @@ function alipay_link($params) {
 	$qcodelink=$qcodepay->create_url();
 	$webpaylink=$webpay->create_url();
 	
-	$code = '<div class="alipay"><iframe id="alipayimg" src="'.$qcodelink.'" width="300" height="290" style="border: none;transform: scale(.76);margin: -30px 0 -30px -35px;" scrolling="no"></iframe>';
-	$code_ajax = '<a href="'.$webpaylink.'" target="_blank" id="alipayDiv" class="btn btn-success btn-sm btn-block">前往支付宝进行支付</a></div>';
+	$code = '<div class="alipay" style="max-width: 230px;margin: 0 auto"><div id="alipayimg" style="border: 1px solid #AAA;border-radius: 4px;overflow: hidden;margin-bottom: 5px;"><iframe src="'.$qcodelink.'" width="300" height="292" frameborder="0" scrolling="no" style="transform: scale(.9);margin: -50px 0 -24px -37px;"></iframe></div>';
+	$code_ajax = '<a href="'.$webpaylink.'" target="_blank" id="alipayDiv" class="btn btn-success btn-block">前往支付宝进行支付</a></div>';
 	$code_ajax = $code_ajax.'
 <!--微信支付ajax跳转-->
 	<script>
-    //设置每隔1000毫秒执行一次 load() 方法
-    setInterval(function(){load()}, 1000);
+    //设置每隔 5000 毫秒执行一次 load() 方法
+    setInterval(function(){load()}, 5000);
     function load(){
         var xmlhttp;
         if (window.XMLHttpRequest){
@@ -96,8 +96,8 @@ function alipay_link($params) {
                 if(trade_state=="SUCCESS"){
                     document.getElementById("alipayimg").style.display="none";
                     document.getElementById("alipayDiv").innerHTML="支付成功";
-                    //延迟 5 秒执行 tz() 方法
-                    setTimeout(function(){tz()}, 2000);
+                    //延迟 2 秒执行 tz() 方法
+                    setTimeout(function(){tz()}, 5000);
                     function tz(){
                         window.location.href="'.$systemurl.'/viewinvoice.php?id='.$invoiceid.'";
                     }
@@ -119,7 +119,7 @@ function alipay_link($params) {
 	if (stristr($_SERVER['PHP_SELF'], 'viewinvoice')) {
 		return $code;
 	} else {
-		return '<img style="width: 200px" src="'.$systemurl.'/modules/gateways/alipay/alipay.png" alt="支付宝支付" />';
+		return '<img style="width: 150px" src="'.$systemurl.'/modules/gateways/alipay/alipay.png" alt="支付宝支付" />';
 	}
 }
 
