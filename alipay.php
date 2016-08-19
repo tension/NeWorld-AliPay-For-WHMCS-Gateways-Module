@@ -8,6 +8,8 @@ function alipay_config() {
      "seller_email" => array("FriendlyName" => "卖家支付宝帐户", "Type" => "text", "Size" => "32", ),
      "partnerID" => array("FriendlyName" => "合作伙伴ID", "Type" => "text", "Size" => "32", ),
      "security_code" => array("FriendlyName" => "安全检验码", "Type" => "text", "Size" => "32", ),
+     "transport" => array ("FriendlyName" => "访问模式", "Type" => "dropdown", "Options" =>
+                              "http,https", "Description" => "根据服务器是否支持SSL访问而选择", "Default" => "1", ),
      "testmode" => array("FriendlyName" => "测试模式", "Type" => "yesno", "Description" => "测试模式(暂时不可用)", ),
     );
 	return $configarray;
@@ -17,7 +19,7 @@ function alipay_link($params) {
 
 	$_input_charset  = "utf-8";   //字符编码格式 目前支持 GBK 或 utf-8
 	$sign_type       = "MD5";     //加密方式 系统默认(不要修改)
-	$transport       = "https";   //访问模式,你可以根据自己的服务器是否支持ssl访问而选择http以及https访问模式(系统默认,不要修改)
+	$transport       = $params['transport'];   //访问模式,你可以根据自己的服务器是否支持ssl访问而选择http以及https访问模式(系统默认,不要修改)
 	
 	# Gateway Specific Variables
 	$gatewayPID = $params['partnerID'];
@@ -71,18 +73,48 @@ function alipay_link($params) {
 	$webpay = new alipay_service($webpay,$gatewaySECURITY_CODE,$sign_type);
 	$qcodelink=$qcodepay->create_url();
 	$webpaylink=$webpay->create_url();
-	$img=$systemurl.'/modules/gateways/alipay/pay-with-alipay.png'; //这个图片要先存放好.
-	$codeinput='<a href="'.$webpaylink.'" target="_blank"><img style="width: 225px" src="'.$img.'" alt="点击使用支付宝支付"></a>';
-	$code='
-<script>
-function refreshPage() { 
-	window.location.reload(); 
-} 
-window.setTimeout("refreshPage()",10000);
-</script>
-<iframe src="'.$qcodelink.'" width="300" height="290" style="border: none;transform: scale(.76);margin: -30px 0 -30px -35px;"></iframe>';
 	
-	$code= $code . $codeinput;
+	$code = '<div class="alipay"><iframe id="alipayimg" src="'.$qcodelink.'" width="300" height="290" style="border: none;transform: scale(.76);margin: -30px 0 -30px -35px;"></iframe>';
+	$code_ajax = '<a href="'.$webpaylink.'" target="_blank" id="alipayDiv" class="btn btn-success btn-sm btn-block">前往支付宝进行支付</a></div>';
+	$code_ajax = $code_ajax.'
+<!--微信支付ajax跳转-->
+	<script>
+    //设置每隔1000毫秒执行一次 load() 方法
+    setInterval(function(){load()}, 1000);
+    function load(){
+        var xmlhttp;
+        if (window.XMLHttpRequest){
+            // code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp=new XMLHttpRequest();
+        }else{
+            // code for IE6, IE5
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.onreadystatechange=function(){
+            if (xmlhttp.readyState==4 && xmlhttp.status==200){
+                trade_state=xmlhttp.responseText;
+                if(trade_state=="SUCCESS"){
+                    document.getElementById("alipayimg").style.display="none";
+                    document.getElementById("alipayDiv").innerHTML="支付成功";
+                    //延迟 5 秒执行 tz() 方法
+                    setTimeout(function(){tz()}, 2000);
+                    function tz(){
+                        window.location.href="'.$systemurl.'/viewinvoice.php?id='.$invoiceid.'";
+                    }
+                }
+            }
+        }
+        //invoice_status.php 文件返回订单状态，通过订单状态确定支付状态
+        xmlhttp.open("get","'.$systemurl.'/modules/gateways/alipay/invoice_status.php?invoiceid='.$invoiceid.'",true);
+        //下面这句话必须有
+        //把标签/值对添加到要发送的头文件。
+        //xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        //xmlhttp.send("out_trade_no=002111");
+        xmlhttp.send();
+    }
+</script>';
+	
+	$code = $code.$code_ajax;
 	
 	if (stristr($_SERVER['PHP_SELF'], 'viewinvoice')) {
 		return $code;
