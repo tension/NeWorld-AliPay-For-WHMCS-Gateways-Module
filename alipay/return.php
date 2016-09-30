@@ -253,7 +253,7 @@ if(!$verify_result) {
 	<?php if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {?>
 							<h2>您已成功支付 <?php echo $total_fee; ?> CNY </h2>
 	<?php } else {?>
-							<h2>Oops！！！</h2>
+							<h2>奥...好像那里出错了</h2>
 	<?php }?>
 						</div>
 					</div>
@@ -265,7 +265,7 @@ if(!$verify_result) {
 					<p>交易编号：<span><?php echo $transid ?></span></p>
 					<p>我们会将确认资料发送至您的信箱。</p>
 	<?php } else {?>
-					<p>貌似是什么地方出了一些问题！</p>
+					<p class="text-center">貌似是什么地方出了一些问题！</p>
 	<?php }?>
 					<a href="<?php echo $url ?>/clientarea.php" class="btn btn-lg btn-success btn-block">返回用户中心</a>
 				</div>
