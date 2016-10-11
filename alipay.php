@@ -10,6 +10,8 @@ function alipay_config() {
      "security_code" => array("FriendlyName" => "安全检验码", "Type" => "text", "Size" => "32", ),
      "transport" => array ("FriendlyName" => "访问模式", "Type" => "dropdown", "Options" =>
                               "http,https", "Description" => "根据服务器是否支持SSL访问而选择", "Default" => "1", ),
+	 "multi_site" => array("FriendlyName" => "启动多站点兼容模式", "Type" => "yesno", "Size" => "50", "Description" => "用于多个站点同一支付宝商家接口",),
+	 "site_security_code" => array("FriendlyName" => "站点识别码", "Type" => "text", "Size" => "50", "Description" => "兼容模式下站点识别码 , 避免支付宝重单",),
      "testmode" => array("FriendlyName" => "测试模式", "Type" => "yesno", "Description" => "测试模式(暂时不可用)", ),
     );
 	return $configarray;
@@ -28,7 +30,11 @@ function alipay_link($params) {
 	$TEST_MODE=$params['testmode'];
 
 	# Invoice Variables
-	$invoiceid = $params['invoiceid'];
+	if ($params['multi_site']) {
+		$invoiceid = $params['site_security_code']."-".$params['invoiceid'];
+	} else {
+		$invoiceid = $params['invoiceid'];
+	}
 	$description = $params["description"];
 	$amount = $params['amount']; # Format: ##.##
 	$currency = $params['currency']; # Currency Code
