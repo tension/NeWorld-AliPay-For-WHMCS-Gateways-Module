@@ -161,7 +161,7 @@ class alipay_notify {
 }
 
 function  log_result($word) {
-	$fp = fopen("/tmp/alipay_log.txt","a");	
+	$fp = fopen("./alipay_log.txt","a");	
 	flock($fp, LOCK_EX) ;
 	fwrite($fp,$word."：执行日期：".strftime("%Y%m%d%H%I%S",time())."\t\n");
 	flock($fp, LOCK_UN); 
@@ -191,6 +191,9 @@ if(!$verify_result) {
 	# Get Returned Variables
 	$status = $_GET['trade_status'];    //获取支付宝传递过来的交易状态
 	$invoiceid = $_GET['out_trade_no']; //获取支付宝传递过来的订单号
+	if ($GATEWAY['multi_site']) {
+		$invoiceid = str_replace($GATEWAY['site_security_code']."-","",$_GET['out_trade_no']);
+	}
 	$transid = $_GET['trade_no'];       //获取支付宝传递过来的交易号
 	$amount = $_GET['total_fee'];       //获取支付宝传递过来的总价格
 	$fee = 0;

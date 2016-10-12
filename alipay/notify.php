@@ -194,24 +194,27 @@ if(!$verify_result) {
 # Get Returned Variables
 $status = $_POST['trade_status'];    //获取支付宝传递过来的交易状态
 $invoiceid = $_POST['out_trade_no']; //获取支付宝传递过来的订单号
+if ($GATEWAY['multi_site']) {
+	$invoiceid = str_replace($GATEWAY['site_security_code']."-","",$_POST['out_trade_no']);
+}
 $transid = $_POST['trade_no'];       //获取支付宝传递过来的交易号
 $amount = $_POST['total_fee'];       //获取支付宝传递过来的总价格
 $fee = 0;
 
 if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {
-	    $paidcurrency = "CNY";
-        $result = select_query( 'tblcurrencies', '', array( 'code' => $paidcurrency ));
-        $data = mysql_fetch_array($result);
-        $paidcurrencyid = $data['id'];
-
-		$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]); # Checks invoice ID is a valid invoice number or ends processing
-		$result = select_query( 'tblinvoices', '', array( 'id' => $invoiceid ) );
-		$data = mysql_fetch_array( $result );
-		$userid = $data['userid'];
-		$currency = getCurrency( $userid );
-		$amount = convertCurrency( $amount, $paidcurrencyid, $currency['id'] );
-		checkCbTransID($transid);
+	$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]); # Checks invoice ID is a valid invoice number or ends processing
+	//checkCbTransID($transid); # Checks transaction number isn't already in the database and ends processing if it does
+	$table = "tblaccounts";
+	$fields = "transid";
+	$where = array("transid"=>$transid);
+	$result = select_query($table,$fields,$where);
+	$data = mysql_fetch_array($result);
+	if(!$data){
 		addInvoicePayment($invoiceid,$transid,$amount,$fee,$gatewaymodule);
-		logTransaction($GATEWAY["name"],$_POST,"Successful-A");
+		logTransaction($GATEWAY["name"],$_GET,"Successful");
+	}
+	//echo "<script>window.parent.location.href='$url/viewinvoice.php?id=$invoiceid';</script>";
+	echo "success";
 }
+
 ?>
