@@ -105,13 +105,13 @@ function alipay_link($params) {
                     //延迟 2 秒执行 tz() 方法
                     setTimeout(function(){tz()}, 5000);
                     function tz(){
-                        window.location.href="'.$systemurl.'/viewinvoice.php?id='.$invoiceid.'";
+                        window.location.href="'.$systemurl.'/viewinvoice.php?id='.$params['invoiceid'].'";
                     }
                 }
             }
         }
         //invoice_status.php 文件返回订单状态，通过订单状态确定支付状态
-        xmlhttp.open("get","'.$systemurl.'/modules/gateways/alipay/invoice_status.php?invoiceid='.$invoiceid.'",true);
+        xmlhttp.open("get","'.$systemurl.'/modules/gateways/alipay/invoice_status.php?invoiceid='.$params['invoiceid'].'",true);
         //下面这句话必须有
         //把标签/值对添加到要发送的头文件。
         //xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
