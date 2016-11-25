@@ -40,7 +40,7 @@ class alipay_notify {
 		$prestr = substr($arg,0,count($arg)-2);  //去掉最后一个&号
 		$this->mysign = $this->sign($prestr.$this->security_code);
 		//log_result("notify_url_log:sign=".$_POST["sign"]."&mysign=".$this->mysign."&".$this->charset_decode(implode(",",$_POST),$this->_input_charset ));
-		if (eregi("true$",$veryfy_result) && $this->mysign == $_POST["sign"])  {
+		if (preg_match("true$",$veryfy_result) && $this->mysign == $_POST["sign"])  {
 			return true;
 		} else return false;
 	}
