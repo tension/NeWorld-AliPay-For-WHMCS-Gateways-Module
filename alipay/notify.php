@@ -1,5 +1,5 @@
 <?php
-
+# 异步返回页面
 # Required File Includes
 include("../../../init.php");
 include("../../../includes/functions.php");
@@ -21,7 +21,7 @@ class alipay_notify {
 		$this->_input_charset = $_input_charset ;
 		$this->transport      = $transport;
 		if($this->transport == "https") {
-			$this->gateway = "https://mapi.alipay.com/gateway.do?";
+			$this->gateway = "https://www.alipay.com/cooperate/gateway.do?";
 		}else $this->gateway = "http://notify.alipay.com/trade/notify_query.do?";
 	}
 /****************************************对notify_url的认证*********************************/
@@ -46,11 +46,7 @@ class alipay_notify {
 	}
 /*******************************************************************************************/
 
-/************************************
-	
-对return_url的认证
-
-*************************************/	
+/**********************************对return_url的认证***************************************/	
 	function return_verify() {  
 		$sort_get= $this->arg_sort($_GET);
 		while (list ($key, $val) = each ($sort_get)) {
@@ -98,8 +94,8 @@ class alipay_notify {
 			while (list ($key, $val) = each ($_POST)) {
 				$arg.=$key."=".$val."&";
 			}
-			//log_result("notify_url_log=".$url.$this->charset_decode($info,$this->_input_charset));
-			//log_result("notify_url_log=".$this->charset_decode($arg,$this->_input_charset));
+			//log_result("return_url_log=".$url.$this->charset_decode($info,$this->_input_charset));
+			//log_result("return_url_log=".$this->charset_decode($arg,$this->_input_charset));
 			return $info;
 		}
 	}
@@ -163,13 +159,15 @@ class alipay_notify {
 	}
 /*********************************************************************************/
 }
+
 function  log_result($word) {
-	$fp = fopen("/tmp/alipay_log.txt","a");	
+	$fp = fopen("./alipay_log.txt","a");	
 	flock($fp, LOCK_EX) ;
 	fwrite($fp,$word."：执行日期：".strftime("%Y%m%d%H%I%S",time())."\t\n");
 	flock($fp, LOCK_UN); 
 	fclose($fp);
 }
+
 $gatewaymodule = "alipay"; # Enter your gateway module name here replacing template
 $GATEWAY = getGatewayVariables($gatewaymodule);
 
@@ -182,39 +180,40 @@ if (!$GATEWAY["type"]) die("Module Not Activated"); # Checks gateway module is a
 $_input_charset  = "utf-8";   //字符编码格式 目前支持 GBK 或 utf-8
 $sign_type       = "MD5";     //加密方式 系统默认(不要修改)
 $transport       = "https";   //访问模式,你可以根据自己的服务器是否支持ssl访问而选择http以及https访问模式(系统默认,不要修改)
-$gatewayPID = $GATEWAY['partnerID'];
-$gatewaySELLER_EMAIL = $GATEWAY['seller_email'];
-$gatewaySECURITY_CODE = $GATEWAY['security_code'];
+$gatewayPID 			= $GATEWAY['partnerID'];
+$gatewaySELLER_EMAIL 	= $GATEWAY['seller_email'];
+$gatewaySECURITY_CODE 	= $GATEWAY['security_code'];
 $alipay = new alipay_notify($gatewayPID,$gatewaySECURITY_CODE,$sign_type,$_input_charset,$transport);
-$verify_result = $alipay->notify_verify();
+$verify_result = $alipay->return_verify();
 if(!$verify_result) { 
-	logTransaction($GATEWAY["name"],$_POST,"Unsuccessful");
-	exit;
-}
-# Get Returned Variables
-$status = $_POST['trade_status'];    //获取支付宝传递过来的交易状态
-$invoiceid = $_POST['out_trade_no']; //获取支付宝传递过来的订单号
-if ($GATEWAY['multi_site']) {
-	$invoiceid = str_replace($GATEWAY['site_security_code']."-","",$_POST['out_trade_no']);
-}
-$transid = $_POST['trade_no'];       //获取支付宝传递过来的交易号
-$amount = $_POST['total_fee'];       //获取支付宝传递过来的总价格
-$fee = 0;
-
-if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {
-	$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]); # Checks invoice ID is a valid invoice number or ends processing
-	//checkCbTransID($transid); # Checks transaction number isn't already in the database and ends processing if it does
-	$table = "tblaccounts";
-	$fields = "transid";
-	$where = array("transid"=>$transid);
-	$result = select_query($table,$fields,$where);
-	$data = mysql_fetch_array($result);
-	if(!$data){
-		addInvoicePayment($invoiceid,$transid,$amount,$fee,$gatewaymodule);
-		logTransaction($GATEWAY["name"],$_GET,"Successful");
+	logTransaction($GATEWAY["name"],$_GET,"Unsuccessful");
+} else {
+	# Get Returned Variables
+	$status = $_GET['trade_status'];    //获取支付宝传递过来的交易状态
+	$invoiceid = $_GET['out_trade_no']; //获取支付宝传递过来的订单号
+	if ($GATEWAY['multi_site']) {
+		$invoiceid = str_replace($GATEWAY['site_security_code']."-","",$_GET['out_trade_no']);
 	}
-	//echo "<script>window.parent.location.href='$url/viewinvoice.php?id=$invoiceid';</script>";
-	echo "success";
-}
+	$transid = $_GET['trade_no'];       //获取支付宝传递过来的交易号
+	$amount = $_GET['total_fee'];       //获取支付宝传递过来的总价格
+	$fee = 0;
+	
+	if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {
+	    $paidcurrency = "CNY";
+        $result = select_query( 'tblcurrencies', '', array( 'code' => $paidcurrency ));
+        $data = mysql_fetch_array($result);
+        $paidcurrencyid = $data['id'];
 
+		$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]);
+		$result = select_query( 'tblinvoices', '', array( 'id' => $invoiceid ) );
+		$data = mysql_fetch_array( $result );
+		$userid = $data['userid'];
+		$currency = getCurrency( $userid );
+		$amount = convertCurrency( $amount, $paidcurrencyid, $currency['id'] );
+		checkCbTransID($transid);
+		addInvoicePayment($invoiceid,$transid,$amount,$fee,$gatewaymodule);
+		logTransaction($GATEWAY["name"],$_POST,"Successful-A");
+	}
+	
+}
 ?>

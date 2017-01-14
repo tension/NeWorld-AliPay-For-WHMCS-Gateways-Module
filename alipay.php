@@ -37,7 +37,6 @@ function alipay_link($params) {
 	}
 	$description = $params["description"];
 	$amount = $params['amount']; # Format: ##.##
-	$currency = $params['currency']; # Currency Code
 
 	# System Variables
 	$companyname 		= $params['companyname'];
