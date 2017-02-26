@@ -3,17 +3,18 @@
 //$security_code   = "";        //安全检验码
 //$seller_email    = "";        //卖家支付宝帐户
 function alipay_config() {
-    $configarray = array(
-     "FriendlyName" => array("Type" => "System", "Value"=>"支付宝（NeWorld）"),
-     "seller_email" => array("FriendlyName" => "卖家支付宝帐户", "Type" => "text", "Size" => "32", ),
-     "partnerID" => array("FriendlyName" => "合作伙伴ID", "Type" => "text", "Size" => "32", ),
-     "security_code" => array("FriendlyName" => "安全检验码", "Type" => "text", "Size" => "32", ),
-     "transport" => array ("FriendlyName" => "访问模式", "Type" => "dropdown", "Options" =>
-                              "http,https", "Description" => "根据服务器是否支持SSL访问而选择", "Default" => "1", ),
-	 "multi_site" => array("FriendlyName" => "启动多站点兼容模式", "Type" => "yesno", "Size" => "50", "Description" => "用于多个站点同一支付宝商家接口",),
-	 "site_security_code" => array("FriendlyName" => "站点识别码", "Type" => "text", "Size" => "50", "Description" => "兼容模式下站点识别码 , 避免支付宝重单",),
-     "testmode" => array("FriendlyName" => "测试模式", "Type" => "yesno", "Description" => "测试模式(暂时不可用)", ),
-    );
+    $configarray = [
+    	"FriendlyName" 			=> ["Type" => "System", "Value"=>"支付宝（NeWorld）"],
+		"seller_email" 			=> ["FriendlyName" => "卖家支付宝帐户", "Type" => "text", "Size" => "32", ],
+		"partnerID" 			=> ["FriendlyName" => "合作伙伴ID", "Type" => "text", "Size" => "32", ],
+		"security_code" 		=> ["FriendlyName" => "安全检验码", "Type" => "text", "Size" => "32", ],
+		"transport" 			=> ["FriendlyName" => "访问模式", "Type" => "dropdown", "Options" =>
+                              "http,https", "Description" => "根据服务器是否支持SSL访问而选择", "Default" => "1", ],
+		"qrcode" 			=> ["FriendlyName" => "启动二维码模式", "Type" => "yesno", "Size" => "50", "Description" => "是否显示二维码",],
+		"multi_site" 			=> ["FriendlyName" => "启动多站点兼容模式", "Type" => "yesno", "Size" => "50", "Description" => "用于多个站点同一支付宝商家接口",],
+		"site_security_code" 	=> ["FriendlyName" => "站点识别码", "Type" => "text", "Size" => "50", "Description" => "兼容模式下站点识别码 , 避免支付宝重单",],
+		"testmode" 				=> ["FriendlyName" => "测试模式", "Type" => "yesno", "Description" => "测试模式(暂时不可用)", ],
+    ];
 	return $configarray;
 }
 
@@ -44,7 +45,26 @@ function alipay_link($params) {
 	$currency 			= $params['currency'];
 	$return_url			= $systemurl."/modules/gateways/alipay/return.php";
 	$notify_url			= $systemurl."/modules/gateways/alipay/notify.php";
-	$qcode = array(
+	if ($params['qrcode']) {
+		$qcode = [
+			"service"         => "create_direct_pay_by_user",  					//交易类型
+			"partner"         => $gatewayPID,          							//合作商户号
+			"return_url"      => $return_url,         							//同步返回
+			"notify_url"      => $notify_url,       							//异步返回
+			"_input_charset"  => $_input_charset,   							//字符集，默认为GBK
+			"subject"         => "$companyname 账单 #$invoiceid",        		//商品名称，必填
+			"body"            => $description,        							//商品描述，必填
+			"out_trade_no"    => $invoiceid,      								//商品外部交易号，必填（保证唯一性）
+			"total_fee"       => $amount,            							//商品单价，必填（价格不能为0）
+			"payment_type"    => "1",               							//默认为1,不需要修改
+			"qr_pay_mode"	  => "1",											//二维码模式
+			"show_url"        => $systemurl,         							//商品相关网站
+			"seller_email"    => $gatewaySELLER_EMAIL      						//卖家邮箱，必填
+		];
+		$qcodepay = new alipay_service($qcode,$gatewaySECURITY_CODE,$sign_type);
+		$qcodelink=$qcodepay->create_url();
+	}
+	$webpay = [
 		"service"         => "create_direct_pay_by_user",  					//交易类型
 		"partner"         => $gatewayPID,          							//合作商户号
 		"return_url"      => $return_url,         							//同步返回
@@ -55,34 +75,15 @@ function alipay_link($params) {
 		"out_trade_no"    => $invoiceid,      								//商品外部交易号，必填（保证唯一性）
 		"total_fee"       => $amount,            							//商品单价，必填（价格不能为0）
 		"payment_type"    => "1",               							//默认为1,不需要修改
-		"qr_pay_mode"	  => "1",											//二维码模式
 		"show_url"        => $systemurl,         							//商品相关网站
 		"seller_email"    => $gatewaySELLER_EMAIL      						//卖家邮箱，必填
-	);
-	$webpay = array(
-		"service"         => "create_direct_pay_by_user",  					//交易类型
-		"partner"         => $gatewayPID,          							//合作商户号
-		"return_url"      => $return_url,         							//同步返回
-		"notify_url"      => $notify_url,       							//异步返回
-		"_input_charset"  => $_input_charset,   							//字符集，默认为GBK
-		"subject"         => "$companyname 账单 #$invoiceid",        		//商品名称，必填
-		"body"            => $description,        							//商品描述，必填
-		"out_trade_no"    => $invoiceid,      								//商品外部交易号，必填（保证唯一性）
-		"total_fee"       => $amount,            							//商品单价，必填（价格不能为0）
-		"payment_type"    => "1",               							//默认为1,不需要修改
-		"show_url"        => $systemurl,         							//商品相关网站
-		"seller_email"    => $gatewaySELLER_EMAIL      						//卖家邮箱，必填
-	);
-
-	$qcodepay = new alipay_service($qcode,$gatewaySECURITY_CODE,$sign_type);
+	];
 	$webpay = new alipay_service($webpay,$gatewaySECURITY_CODE,$sign_type);
-	$qcodelink=$qcodepay->create_url();
 	$webpaylink=$webpay->create_url();
 	
-	$code = '<div class="alipay" style="max-width: 230px;margin: 0 auto"><div id="alipayimg" style="border: 1px solid #AAA;border-radius: 4px;overflow: hidden;margin-bottom: 5px;"><iframe src="'.$qcodelink.'" width="300" height="292" frameborder="0" scrolling="no" style="transform: scale(.9);margin: -50px 0 -24px -37px;"></iframe></div>';
-	$code_ajax = '<a href="'.$webpaylink.'" target="_blank" id="alipayDiv" class="btn btn-success btn-block">前往支付宝进行支付</a></div>';
-	$code_ajax = $code_ajax.'
-<!--微信支付ajax跳转-->
+	$code = '<div class="alipay" style="max-width: 230px;margin: 0 auto">';
+	if ($params['qrcode']) {
+	$code = $code . '<div id="alipayimg" style="border: 1px solid #AAA;border-radius: 4px;overflow: hidden;margin-bottom: 5px;"><iframe src="'.$qcodelink.'" width="300" height="292" frameborder="0" scrolling="no" style="transform: scale(.9);margin: -50px 0 -24px -37px;"></iframe></div><!--微信支付ajax跳转-->
 	<script>
     //设置每隔 5000 毫秒执行一次 load() 方法
     setInterval(function(){load()}, 5000);
@@ -118,6 +119,8 @@ function alipay_link($params) {
         xmlhttp.send();
     }
 </script>';
+	}
+	$code_ajax = '<a href="'.$webpaylink.'" target="_blank" id="alipayDiv" class="btn btn-success btn-block">前往支付宝进行支付</a></div>';
 	
 	$code = $code.$code_ajax;
 	
