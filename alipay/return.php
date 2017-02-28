@@ -190,25 +190,36 @@ if(!$verify_result) {
 } else {
 	# Get Returned Variables
 	$status = $_GET['trade_status'];    //获取支付宝传递过来的交易状态
-	$invoiceid = $_GET['out_trade_no']; //获取支付宝传递过来的订单号
+	$invoiceId = $_GET['out_trade_no']; //获取支付宝传递过来的订单号
 	if ($GATEWAY['multi_site']) {
-		$invoiceid = str_replace($GATEWAY['site_security_code']."-","",$_GET['out_trade_no']);
+		$invoiceId = str_replace($GATEWAY['site_security_code']."-","",$_GET['out_trade_no']);
 	}
 	$transid = $_GET['trade_no'];       //获取支付宝传递过来的交易号
-	$amount = $_GET['total_fee'];       //获取支付宝传递过来的总价格
-	$fee = 0;
+	$paymentAmount = $_GET['total_fee'];       //获取支付宝传递过来的总价格
+	$feeAmount = 0;
 	
 	if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {
 		$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]); # Checks invoice ID is a valid invoice number or ends processing
+
+		//货币转换开始
+		//获取支付货币种类
+		$currencytype 	= \Illuminate\Database\Capsule\Manager::table('tblcurrencies')->where('id', $gatewayParams['convertto'])->first();
+		
+		//获取账单 用户ID
+		$userinfo 	= \Illuminate\Database\Capsule\Manager::table('tblinvoices')->where('id', $invoiceId)->first();
+		
+		//得到用户 货币种类
+		$currency = getCurrency( $userinfo->userid );
+		
+		// 转换货币
+		$paymentAmount = convertCurrency( $paymentAmount, $currencytype->id, $currency['id'] );
+		// 货币转换结束
+
 		checkCbTransID($transid); # Checks transaction number isn't already in the database and ends processing if it does
 
-		$table = "tblaccounts";
-		$fields = "transid";
-		$where = array("transid"=>$transid);
-		$result = select_query($table,$fields,$where);
-		$data = mysql_fetch_array($result);
+		$data = \Illuminate\Database\Capsule\Manager::table('tblaccounts')->where('transid', $transid)->first();
 		if(!$data){
-			addInvoicePayment($invoiceid,$transid,$amount,$fee,$gatewaymodule);
+			addInvoicePayment($invoiceId,$transid,$paymentAmount,$feeAmount,$gatewaymodule);
 			logTransaction($GATEWAY["name"],$_GET,"Successful");
 		}
 		//echo "<script>window.parent.location.href='$url/viewinvoice.php?id=$invoiceid';</script>";
