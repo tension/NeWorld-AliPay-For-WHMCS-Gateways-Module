@@ -199,7 +199,7 @@ if(!$verify_result) {
 	$feeAmount = 0;
 	
 	if($status == 'TRADE_FINISHED' || $status == 'TRADE_SUCCESS') {
-		$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]); # Checks invoice ID is a valid invoice number or ends processing
+		$invoiceId = checkCbInvoiceID($invoiceId,$GATEWAY["name"]); # Checks invoice ID is a valid invoice number or ends processing
 
 		//货币转换开始
 		//获取支付货币种类
